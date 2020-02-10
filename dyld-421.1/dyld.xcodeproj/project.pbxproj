@@ -440,6 +440,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		32E6FEB423F1A10D00DA499A /* LTLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LTLoader.h; sourceTree = "<group>"; };
 		3703A1241B38C1B300ADBA7F /* dyld_shared_cache_builder */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dyld_shared_cache_builder; sourceTree = BUILT_PRODUCTS_DIR; };
 		3703A1251B38C22900ADBA7F /* dyld_shared_cache_builder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = dyld_shared_cache_builder.mm; sourceTree = "<group>"; usesTabs = 0; };
 		370C6E531BDEF08000387223 /* libspindump.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libspindump.dylib; path = usr/lib/libspindump.dylib; sourceTree = SDKROOT; };
@@ -615,6 +616,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		32E6FEB323F1A0E800DA499A /* Mach-o */ = {
+			isa = PBXGroup;
+			children = (
+				32E6FEB423F1A10D00DA499A /* LTLoader.h */,
+			);
+			path = "Mach-o";
+			sourceTree = "<group>";
+		};
 		EF799FE7070D27BB00F78484 /* man */ = {
 			isa = PBXGroup;
 			children = (
@@ -729,6 +738,7 @@
 		F9ED4C870630A72200DF4E74 = {
 			isa = PBXGroup;
 			children = (
+				32E6FEB323F1A0E800DA499A /* Mach-o */,
 				F9F6F4261C1FAF8000BD8FED /* testing */,
 				F971DD121A4A0E0700BBDD52 /* configs */,
 				F9ED4CBB0630A7AA00DF4E74 /* src */,
