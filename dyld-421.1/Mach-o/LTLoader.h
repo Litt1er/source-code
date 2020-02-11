@@ -413,6 +413,9 @@ struct segment_command { /* for 32-bit architectures */
  
  flags 是杂项标志位
  vmsize 并不等于 filesize，对于 4KB 大小的 VP，vmsize 是 4K 的倍数；换句话说，vmsize 一般大于 segment 的实际大小
+ 
+ 虽然知道了 segment 对应的区域和 section 的数量，但是如何知道其中各个 sections 的具体位置和 size 呢？
+ 别急，对于 LC_SEGMENT_64 而言，如果其nsects字段大于 0，其命令后面还会紧接着挂载nsects个描述 section 的信息，这些信息是section_64的列表，section_64结构体定义如下：
  */
 struct segment_command_64 { /* for 64-bit architectures */
 	uint32_t	cmd;		/* LC_SEGMENT_64 */
@@ -488,6 +491,19 @@ struct section { /* for 32-bit architectures */
 	uint32_t	reserved2;	/* reserved (for count or sizeof) */
 };
 
+/*
+ 对于 LC_SEGMENT_64 而言，如果其nsects字段大于 0，其命令后面还会紧接着挂载nsects个描述 section 的信息，这些信息是section_64的列表，section_64结构体定义如下
+ 
+ 结构体section_64可以看做 section header，它描述了对应 section 的具体位置，以及要被映射的目标虚拟地址
+ 
+ 回头再看segment_command_64的cmdsize字段，它的数值并非是segment_command_64的 size 大小，还包括了紧接在 command 后面的所有section_64结构体的大小。
+
+ 举个例子，如果 segment 含有 5 个 section，那么对应的 segment_command_64 的 cmdsize 值为：
+
+ 72（segment_command_64本身大小） + 5 * 80（section_64的大小） = 472 bytes
+ 
+ 对 LC_SEGMENT_64 的分析到此结束，此时应该基本搞清楚了 segment 和 section，得到的事实是：Mach-O 本没有 segment，有了 LC_SEGMENT_64，于是有了 segment
+ */
 struct section_64 { /* for 64-bit architectures */
 	char		sectname[16];	/* name of this section */
 	char		segname[16];	/* segment this section goes in */
