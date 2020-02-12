@@ -1,27 +1,27 @@
 // litt1er
 
+
 /*
- * Copyright (c) 1999-2010 Apple Inc.  All Rights Reserved.
- *
- * @APPLE_LICENSE_HEADER_START@
- *
- * This file contains Original Code and/or Modifications of Original Code
- * as defined in and that are subject to the Apple Public Source License
- * Version 2.0 (the 'License'). You may not use this file except in
- * compliance with the License. Please obtain a copy of the License at
- * http://www.opensource.apple.com/apsl/ and read it before using this
- * file.
- *
- * The Original Code and all software distributed under the License are
- * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
- * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
- * INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
- * Please see the License for the specific language governing rights and
- * limitations under the License.
- *
- * @APPLE_LICENSE_HEADER_END@
+ 
+ 一共包括三个 segment：__TEXT、__DATA、__LINKEDIT
+segment 的块范围并非一定在 Data 区内（譬如 __TEXT segment）
+并非每一个 segment 都由 section 组成（譬如 __LINKEDIT segment）
+ 
+刚开始接触 Mach-O 时，在学习方向上有这么些误区：
+
+情不自禁地想办法搜罗各种 load commands 信息，以为了解 Mach-O 的关键在于搞清楚这些 load commands
+以为 load command 是用来被执行的，很纠结它们是如何被执行的，它们的执行顺序是如何的，以及是谁在执行
+待到对 Mach-O 的研究开始有些眉目时，回过头来看，我认为的正确的认识应该是：
+
+各种 load commands 存在的意义是让整个 Mach-O 变得结构化起来
+对 Mach-O 的分析，主要围绕 header 和 load commands 进行，它们的典型服务对象是内核/链接器；换句话说，有的 commands 是为内核服务的，有些是为链接器（无论是静态链接器，还是动态链接器）服务的
+在进行下一步的研究分析之前，笼统搞清楚各个 load commands 的内涵，其意义并不大，在分析静态链接、动态链接等主题的具体问题时，再去分析相关的 load commands，才能理解得更深刻
+ 
+ 静态链接： https://zhangbuhuai.com/post/macho-static-link.html
+ 
+ 
  */
+
 #ifndef _MACHO_LOADER_H_
 #define _MACHO_LOADER_H_
 
@@ -511,8 +511,33 @@ struct section_64 { /* for 64-bit architectures */
 	uint64_t	size;		/* size in bytes of this section */
 	uint32_t	offset;		/* file offset of this section */
 	uint32_t	align;		/* section alignment (power of 2) */
+	
+	// Relocation table可以看作是一个 relocation entry 的数组，每个 relocation entry 占 8 个字节：
+	// 对应结构体是relocation_info
+	
+	/*
+	 struct relocation_info {
+    int32_t   r_address;      /* offset in the section to what is being relocated */
+    uint32_t  r_symbolnum:24, /* symbol index if r_extern == 1 or section ordinal if r_extern == 0 */
+              r_pcrel:1,      /* was relocated pc relative already */
+              r_length:2,     /* 0=byte, 1=word, 2=long, 3=quad */
+              r_extern:1,     /* does not include value of sym referenced */
+              r_type:4;       /* if not 0, machine specific relocation type */
+	};
+	对这几个字段稍作说明：
+
+	r_address和r_length字段描述了需要被 relocation 的字节范围，其中r_address是相对于 section 的偏移量
+	r_pcrel表示地址值是 PC 相对地址值
+	r_extern标记该符号是否是外部符号
+	r_symbolnum，index 值，对于外部符号，它描述了符号在 symbol table 中的位置；如果是内部符号，它描述了符号所在的 section 的index
+	r_type，符号类型
+	 */
+	
+	//relocation table 的 file offset
 	uint32_t	reloff;		/* file offset of relocation entries */
+	//relocation table 的 entry 数量
 	uint32_t	nreloc;		/* number of relocation entries */
+	
 	uint32_t	flags;		/* flags (section type and attributes)*/
 	uint32_t	reserved1;	/* reserved (for offset or index) */
 	uint32_t	reserved2;	/* reserved (for count or sizeof) */
